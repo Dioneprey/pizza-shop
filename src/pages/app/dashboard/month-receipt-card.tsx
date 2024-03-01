@@ -1,45 +1,49 @@
 import { useQuery } from '@tanstack/react-query'
-import { Loader2, Utensils } from 'lucide-react'
+import { DollarSign, Loader2 } from 'lucide-react'
 
-import { getMonthOrdersAmount } from '@/api/get-month-orders-amount'
+import { getMonthReceipt } from '@/api/get-month-receipt'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 import { CardSkeleton } from './card-skeleton'
 
-export function MonthOrdersAmountCard() {
-  const { data: monthOrdersAmount, isFetching: isLoadingMonthOrdersAmount } =
-    useQuery({
-      queryKey: ['metrics', 'month-orders-amount'],
-      queryFn: getMonthOrdersAmount,
-    })
+export function MonthReceiptCard() {
+  const { data: monthReceipt, isFetching: isLoadingMonthReceipt } = useQuery({
+    queryKey: ['metrics', 'month-receipt'],
+    queryFn: getMonthReceipt,
+  })
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-base font-semibold">Pedidos (mês)</CardTitle>
-        {isLoadingMonthOrdersAmount ? (
+        <CardTitle className="text-base font-semibold">
+          Receita total (mês)
+        </CardTitle>
+        {isLoadingMonthReceipt ? (
           <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
         ) : (
-          <Utensils className="h-4 w-4 text-muted-foreground" />
+          <DollarSign className="h-4 w-4 text-muted-foreground" />
         )}
       </CardHeader>
       <CardContent className="space-y-1">
-        {monthOrdersAmount ? (
+        {monthReceipt ? (
           <>
             <span className="text-2xl font-bold">
-              {monthOrdersAmount.amount.toLocaleString('pt-BR')}
+              {(monthReceipt.receipt / 100).toLocaleString('pt-BR', {
+                currency: 'BRL',
+                style: 'currency',
+              })}
             </span>
             <p className="text-xs text-muted-foreground">
               <span
                 className={
-                  monthOrdersAmount.diffFromLastMonth > 0
+                  monthReceipt.diffFromLastMonth > 0
                     ? 'text-emerald-500'
                     : 'text-red-500'
                 }
               >
-                {monthOrdersAmount.diffFromLastMonth > 0
-                  ? `+${monthOrdersAmount.diffFromLastMonth}`
-                  : monthOrdersAmount.diffFromLastMonth}
+                {monthReceipt.diffFromLastMonth > 0
+                  ? `+${monthReceipt.diffFromLastMonth}`
+                  : monthReceipt.diffFromLastMonth}
                 %
               </span>{' '}
               em relação ao mês passado
