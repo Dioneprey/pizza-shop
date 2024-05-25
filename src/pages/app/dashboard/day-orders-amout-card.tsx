@@ -27,19 +27,19 @@ export function DayOrdersAmountCard() {
         {dayOrdersAmount ? (
           <>
             <span className="text-2xl font-bold">
-              {dayOrdersAmount.amount.toLocaleString('pt-BR')}
+              {dayOrdersAmount?.amount?.toLocaleString('pt-BR')}
             </span>
             <p className="text-xs text-muted-foreground">
               <span
                 className={
-                  dayOrdersAmount.diffFromYesterday > 0
+                  dayOrdersAmount?.diffFromYesterday > 0
                     ? 'text-emerald-500'
                     : 'text-red-500'
                 }
               >
-                {dayOrdersAmount.diffFromYesterday > 0
-                  ? `+${dayOrdersAmount.diffFromYesterday}`
-                  : dayOrdersAmount.diffFromYesterday}
+                {dayOrdersAmount?.diffFromYesterday > 0
+                  ? `+${dayOrdersAmount?.diffFromYesterday}`
+                  : dayOrdersAmount?.diffFromYesterday}
                 %
               </span>{' '}
               em relação a ontem

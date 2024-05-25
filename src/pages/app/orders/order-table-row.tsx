@@ -3,6 +3,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { ArrowRight, Loader2, Search } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 import { approveOrder } from '@/api/approve-order'
 import { cancelOrder } from '@/api/cancel-order'
@@ -16,13 +17,13 @@ import { TableCell, TableRow } from '@/components/ui/table'
 
 import { OrderDetails } from './order-details'
 
-interface OrderTableRowProps {
+export interface OrderTableRowProps {
   order: {
     orderId: string
     createdAt: string
     customerName: string
     total: number
-    status: 'pending' | 'canceled' | 'processing' | 'delivering' | 'delivered'
+    status: OrderStatus
   }
 }
 
@@ -31,35 +32,34 @@ export function OrderTableRow({ order }: OrderTableRowProps) {
   const queryClient = useQueryClient()
 
   function updateOrderStatusOnCache(orderId: string, status: OrderStatus) {
-    const ordersListCache = queryClient.getQueriesData<GetOrdersResponse>({
+    const ordersListingCache = queryClient.getQueriesData<GetOrdersResponse>({
       queryKey: ['orders'],
     })
 
-    ordersListCache.forEach(([cacheKey, cacheData]) => {
-      if (!cacheData) {
+    console.log(ordersListingCache)
+
+    ordersListingCache.forEach(([cacheKey, cached]) => {
+      if (!cached) {
         return
       }
 
       queryClient.setQueryData<GetOrdersResponse>(cacheKey, {
-        ...cacheData,
-        orders: cacheData.orders.map((order) => {
-          if (order.orderId === orderId) {
-            return { ...order, status }
+        ...cached,
+        orders: cached.orders.map((order) => {
+          if (order.orderId !== orderId) {
+            return order
           }
 
-          return order
+          return {
+            ...order,
+            status,
+          }
         }),
       })
     })
-  }
 
-  const { mutateAsync: cancelOrderFn, isPending: isCancelingOrder } =
-    useMutation({
-      mutationFn: cancelOrder,
-      onSuccess: async (_, { orderId }) => {
-        updateOrderStatusOnCache(orderId, 'canceled')
-      },
-    })
+    toast.success('Pedido alterado com sucesso!')
+  }
 
   const { mutateAsync: approveOrderFn, isPending: isApprovingOrder } =
     useMutation({
@@ -69,11 +69,11 @@ export function OrderTableRow({ order }: OrderTableRowProps) {
       },
     })
 
-  const { mutateAsync: deliverOrderFn, isPending: isDeliveringOrder } =
+  const { mutateAsync: cancelOrderFn, isPending: isCancelingOrder } =
     useMutation({
-      mutationFn: deliverOrder,
+      mutationFn: cancelOrder,
       onSuccess: async (_, { orderId }) => {
-        updateOrderStatusOnCache(orderId, 'delivered')
+        updateOrderStatusOnCache(orderId, 'canceled')
       },
     })
 
@@ -85,19 +85,29 @@ export function OrderTableRow({ order }: OrderTableRowProps) {
       },
     })
 
+  const { mutateAsync: deliverOrderFn, isPending: isDeliveringOrder } =
+    useMutation({
+      mutationFn: deliverOrder,
+      onSuccess: async (_, { orderId }) => {
+        updateOrderStatusOnCache(orderId, 'delivered')
+      },
+    })
+
   return (
     <TableRow>
       <TableCell>
-        <Dialog open={isOrderDetailsOpen} onOpenChange={setIsOrderDetailsOpen}>
+        <Dialog onOpenChange={setIsOrderDetailsOpen} open={isOrderDetailsOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="xs">
               <Search className="h-3 w-3" />
               <span className="sr-only">Detalhes do pedido</span>
             </Button>
           </DialogTrigger>
-          <OrderDetails orderId={order.orderId} open={isOrderDetailsOpen} />
+
+          <OrderDetails open={isOrderDetailsOpen} orderId={order.orderId} />
         </Dialog>
       </TableCell>
+
       <TableCell className="font-mono text-xs font-medium">
         {order.orderId}
       </TableCell>
@@ -106,18 +116,26 @@ export function OrderTableRow({ order }: OrderTableRowProps) {
           locale: ptBR,
           addSuffix: true,
         })}
-        s
       </TableCell>
+
       <TableCell>
         <OrderStatus status={order.status} />
       </TableCell>
+
       <TableCell className="font-medium">{order.customerName}</TableCell>
-      <TableCell className="font-medium">
-        {(order.total / 100).toLocaleString('pt-BR', {
-          style: ' currency',
-          currency: 'BRL',
-        })}
+
+      <TableCell>
+        <div className="flex flex-col gap-0.5">
+          <span className="font-medium">
+            {(order.total / 100).toLocaleString('pt-BR', {
+              style: 'currency',
+              currency: 'BRL',
+            })}
+          </span>
+          <span className="text-xs text-muted-foreground">3 produto(s)</span>
+        </div>
       </TableCell>
+
       <TableCell>
         {order.status === 'processing' && (
           <Button

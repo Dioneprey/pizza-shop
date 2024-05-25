@@ -27,19 +27,19 @@ export function MonthOrdersAmountCard() {
         {monthOrdersAmount ? (
           <>
             <span className="text-2xl font-bold">
-              {monthOrdersAmount.amount.toLocaleString('pt-BR')}
+              {monthOrdersAmount?.amount?.toLocaleString('pt-BR')}
             </span>
             <p className="text-xs text-muted-foreground">
               <span
                 className={
-                  monthOrdersAmount.diffFromLastMonth > 0
+                  monthOrdersAmount?.diffFromLastMonth > 0
                     ? 'text-emerald-500'
                     : 'text-red-500'
                 }
               >
-                {monthOrdersAmount.diffFromLastMonth > 0
-                  ? `+${monthOrdersAmount.diffFromLastMonth}`
-                  : monthOrdersAmount.diffFromLastMonth}
+                {monthOrdersAmount?.diffFromLastMonth > 0
+                  ? `+${monthOrdersAmount?.diffFromLastMonth}`
+                  : monthOrdersAmount?.diffFromLastMonth}
                 %
               </span>{' '}
               em relação ao mês passado

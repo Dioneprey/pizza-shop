@@ -28,7 +28,7 @@ export function MonthReceiptCard() {
         {monthReceipt ? (
           <>
             <span className="text-2xl font-bold">
-              {(monthReceipt.receipt / 100).toLocaleString('pt-BR', {
+              {(monthReceipt?.receipt / 100).toLocaleString('pt-BR', {
                 currency: 'BRL',
                 style: 'currency',
               })}
@@ -36,14 +36,14 @@ export function MonthReceiptCard() {
             <p className="text-xs text-muted-foreground">
               <span
                 className={
-                  monthReceipt.diffFromLastMonth > 0
+                  monthReceipt?.diffFromLastMonth > 0
                     ? 'text-emerald-500'
                     : 'text-red-500'
                 }
               >
-                {monthReceipt.diffFromLastMonth > 0
-                  ? `+${monthReceipt.diffFromLastMonth}`
-                  : monthReceipt.diffFromLastMonth}
+                {monthReceipt?.diffFromLastMonth > 0
+                  ? `+${monthReceipt?.diffFromLastMonth}`
+                  : monthReceipt?.diffFromLastMonth}
                 %
               </span>{' '}
               em relação ao mês passado

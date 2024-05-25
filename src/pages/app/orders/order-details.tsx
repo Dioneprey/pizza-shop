@@ -54,7 +54,7 @@ export function OrderDetails({ orderId, open }: OrderDetailsProps) {
 
       {isLoadingOrder && <OrderDetailsSkeleton />}
 
-      {order && (
+      {order ? (
         <div className="space-y-6">
           <Table>
             <TableBody>
@@ -151,6 +151,8 @@ export function OrderDetails({ orderId, open }: OrderDetailsProps) {
             </TableFooter>
           </Table>
         </div>
+      ) : (
+        <OrderDetailsSkeleton />
       )}
     </DialogContent>
   )
